@@ -1,0 +1,129 @@
+//Home
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gym/controller/home_controller.dart';
+
+class Home extends StatelessWidget {
+  Home({super.key});
+  final HomeController controller = Get.put(HomeController());
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<HomeController>(
+      builder: (controller) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          bottomNavigationBar: SafeArea(
+            bottom: GetPlatform.isAndroid ? true : false,
+            child: Container(
+              alignment: const Alignment(0, -0.7),
+              height: 70,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                color: Color(0xff161616),
+
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.brown.withOpacity(0.3),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(controller.pagesItems.length, (i) {
+                  final item = controller.pagesItems[i];
+                  final isSelected = controller.currentPage == item["index"];
+
+                  return InkWell(
+                    onTap: () => controller.changePage(item["index"] as int),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        // color: isSelected
+                        //     ? const Color.fromARGB(
+                        //         255,
+                        //         39,
+                        //         219,
+                        //         186,
+                        //       ).withOpacity(0.8)
+                        //     : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: AnimatedScale(
+                        scale: isSelected ? 1.2 : 1,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              item['icon'].toString(),
+                              width: 24,
+                              height: 24,
+                              color: isSelected
+                                  ? const Color(0xffE30613)
+                                  : Color(0xff8A8A8A),
+                            ),
+                            if (isSelected) const SizedBox(width: 6),
+                            if (isSelected)
+                              AnimatedOpacity(
+                                opacity: 1.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: Text(
+                                  item['label'] as String,
+                                  style: const TextStyle(
+                                    color: Color.fromARGB(255, 233, 30, 30),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+          body: controller.pages[controller.currentPage],
+        );
+      },
+    );
+  }
+}
+
+
+// Controller
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gym/view/pages/homepage.dart';
+import 'package:gym/view/pages/profile.dart';
+import 'package:gym/view/pages/progress.dart';
+import 'package:gym/view/pages/workouts.dart';
+
+class HomeController extends GetxController {
+  int currentPage = 0;
+
+  List<Widget> pages = [HomePage(), Workouts(), ProgressPage(), Profile()];
+  final pagesItems = [
+    {"icon": 'assets/icons/Home.png', "index": 0, "label": "Home"},
+    {"icon": 'assets/icons/Vector.png', "index": 1, "label": "Workouts"},
+    {"icon": 'assets/icons/Bar_chart.png', "index": 2, "label": "Progress"},
+    {"icon": 'assets/icons/profile.png', "index": 3, "label": "Profile"},
+  ];
+
+  changePage(int index) {
+    currentPage = index;
+    update();
+  }
+}
